@@ -150,7 +150,7 @@
             <div class="ep-title">${esc(ep.title)}</div>
             <div class="ep-meta"><span>${TENSE_AR[ep.tense] || ''}</span><span>~${estMinutes(ep)} دقيقة</span><span>${ep.lines.length} سطر</span></div>
           </div>
-          <div class="ep-state">${done ? '<span class="inprog">تمت</span>' : inprog ? '<span class="inprog">بتسمعها</span>' : ''}</div>
+          <div class="ep-state">${done ? '<span class="inprog done-mark"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-inline-start:3px"><path d="M5 12l5 5 9-10"/></svg>تمت</span>' : inprog ? '<span class="inprog">بتسمعها</span>' : ''}</div>
         </div>`;
     });
     listView.innerHTML = html;

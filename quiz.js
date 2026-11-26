@@ -26,9 +26,12 @@
     const c = $('mistakesCount'); if (c) c.textContent = mistakeCount();
     document.querySelectorAll('.ep-card').forEach(card => {
       const id = card.dataset.id, r = results[id];
+      const st = card.querySelector('.ep-state');
       let tag = card.querySelector('.q-tag');
       if (!r) { if (tag) tag.remove(); return; }
-      if (!tag) { tag = document.createElement('div'); tag.className = 'q-tag'; card.querySelector('.ep-info').appendChild(tag); }
+      if (!tag) { tag = document.createElement('div'); tag.className = 'q-tag'; st.appendChild(tag); }
+      const pct = r.total ? r.best / r.total : 0;
+      tag.className = 'q-tag ' + (pct >= 0.8 ? 'good' : pct >= 0.5 ? 'mid' : 'low');
       tag.textContent = `اختبار ${r.best}/${r.total}`;
     });
   }
@@ -109,6 +112,7 @@
       results[s.ep] = { score: s.score, total, best: Math.max(r.best || 0, s.score) };
       save();
     }
+    const idx = A.EPISODES.findIndex(e => e.id === s.ep), nextEp = s.kind !== 'mist' && idx >= 0 ? A.EPISODES[idx + 1] : null;
     const msg = pct >= 90 ? 'ممتاز' : pct >= 70 ? 'كويس' : pct >= 50 ? 'محتاج مراجعة' : 'ارجع للحلقة وسمعها تاني';
     body.innerHTML = `
       <div class="q-result">
@@ -117,6 +121,7 @@
         ${s.wrong.length ? `<div class="q-note">${s.wrong.length} سؤال اتضافوا لبنك الأخطاء</div>` : '<div class="q-note">مفيش أخطاء</div>'}
         <div class="q-actions">
           ${s.wrong.length ? '<button class="q-next" id="qRetryWrong">راجع الأسئلة اللي غلطت فيها</button>' : ''}
+          ${s.kind !== 'mist' && nextEp ? `<button class="q-next" id="qNextEp" style="${s.wrong.length ? 'background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border);font-weight:500' : ''}">الحلقة التالية: ${esc(nextEp.title)}</button>` : ''}
           <button class="q-next alt" id="qAgain">${s.kind === 'mist' ? 'كمّل المراجعة' : 'أعد الاختبار'}</button>
           <button class="q-next alt" id="qExit">${s.kind === 'mist' ? 'رجوع للرئيسية' : 'رجوع للحلقة'}</button>
         </div>
@@ -125,6 +130,7 @@
     if (rw) rw.addEventListener('click', () => { const items = s.wrong.map(n => byN[n]); const kind = s.kind, ep = s.ep; start(items, { kind: kind === 'ep' ? 'retry' : kind, ep }); });
     $('qAgain').addEventListener('click', () => { if (s.kind === 'ep') startEpisode(s.ep); else if (s.kind === 'mist') startMistakes(); else startEpisode(s.ep); });
     $('qExit').addEventListener('click', exit);
+    const ne = $('qNextEp'); if (ne) ne.addEventListener('click', () => A.openEpisode(nextEp.id));
   }
 
   function exit() {
