@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alcpt-stories-v2';
+const CACHE_NAME = 'alcpt-stories-v3';
 const AUDIO_CACHE = 'alcpt-stories-audio-v1';
 const STATIC_ASSETS = ['./','./index.html','./app.js','./data.js','./manifest.json','./icon-96.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(STATIC_ASSETS)).then(() => self.skipWaiting())); });
@@ -14,8 +14,9 @@ self.addEventListener('fetch', e => {
     }))));
     return;
   }
-  e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
-    if (!res || res.status !== 200 || res.type !== 'basic') return res;
-    const cl = res.clone(); caches.open(CACHE_NAME).then(c => c.put(e.request, cl)); return res;
-  }).catch(() => e.request.mode === 'navigate' ? caches.match('./index.html') : undefined)));
+  // app shell: network-first so updates reach users, cache fallback for offline
+  e.respondWith(fetch(e.request).then(res => {
+    if (res && res.status === 200 && res.type === 'basic') { const cl = res.clone(); caches.open(CACHE_NAME).then(c => c.put(e.request, cl)); }
+    return res;
+  }).catch(() => caches.match(e.request).then(hit => hit || (e.request.mode === 'navigate' ? caches.match('./index.html') : undefined))));
 });
