@@ -155,6 +155,7 @@
     });
     listView.innerHTML = html;
     listView.querySelectorAll('.ep-card').forEach(c => c.addEventListener('click', () => openEpisode(+c.dataset.id)));
+    if (window.__alcpt && window.__alcpt.refreshBadges) window.__alcpt.refreshBadges();
   }
 
   // ---------- Views ----------
@@ -167,6 +168,7 @@
     playerView.classList.toggle('active', v === 'player');
     vocabView.classList.toggle('active', v === 'vocab');
     controlBar.classList.toggle('active', v === 'player');
+    const qv = document.getElementById('quizView'); if (qv) qv.classList.toggle('active', v === 'quiz');
     window.scrollTo(0, 0);
   }
 
@@ -184,6 +186,7 @@
     trToggle.style.display = hasTr ? '' : 'none';
     trToggle.classList.toggle('on', state.showTranslation);
     revealAllBtn.style.display = state.mode === 'blind' ? '' : 'none';
+    if (window.__alcpt && window.__alcpt.onOpenEpisode) window.__alcpt.onOpenEpisode(ep);
     showView('player');
     renderLines();
     updateStatus();
@@ -662,5 +665,5 @@
   const m = location.hash.match(/^#ep=(\d+)(?:&tr)?(?:&l=(\d+))?/);
   if (m && m[0].includes('&tr')) { state.showTranslation = true; }
   if (m) openEpisode(+m[1], m[2] ? +m[2] : 0);
-  window.__alcpt = { playLine, openEpisode, state };
+  window.__alcpt = { playLine, openEpisode, state, showView, EPISODES };
 })();

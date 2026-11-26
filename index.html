@@ -200,6 +200,38 @@ button{font-family:inherit}
 .mode-chip,.pill-btn,.icon-btn,.toggle-chip,.dict-btn,.mini-btn{font-weight:500;letter-spacing:.2px}
 .ctrl-btn.skip span{font-size:.72rem;font-weight:700;margin:1px 0}
 .back-btn svg{display:block}
+
+.quiz-view{display:none;padding:16px 16px 60px;max-width:800px;margin:0 auto}
+.quiz-view.active{display:block}
+.q-progress{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text-secondary);font-size:.85rem}
+.q-bar{flex:1;height:6px;background:var(--bg-elevated);border-radius:6px;overflow:hidden}
+.q-bar div{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-soft));transition:width .3s}
+.q-streak{font-size:.78rem;color:var(--gold);margin-bottom:8px}
+.q-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;margin-bottom:14px}
+.q-text{font-family:'Lora',Georgia,serif;font-size:1.15rem;line-height:1.7;text-align:left}
+.q-text mark{background:rgba(240,180,41,.2);color:var(--gold-soft);padding:0 3px;border-radius:4px}
+.q-opts{display:flex;flex-direction:column;gap:10px}
+.q-opt{display:flex;align-items:center;gap:12px;text-align:left;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:13px 14px;border-radius:14px;font-size:1rem;cursor:pointer;font-family:'Lora',Georgia,serif;transition:all .2s}
+.q-lab{flex:none;width:28px;height:28px;border-radius:8px;background:var(--bg-elevated);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:700;font-size:.85rem}
+.q-opt.right{border-color:var(--success);background:rgba(52,211,153,.12)}
+.q-opt.right .q-lab{background:var(--success);color:#06281c}
+.q-opt.wrong{border-color:var(--danger);background:rgba(248,113,113,.12)}
+.q-opt.wrong .q-lab{background:var(--danger);color:#2a0a0a}
+.q-feed{margin-top:14px;border-radius:14px;padding:14px 16px;border:1px solid var(--border);background:var(--bg-card)}
+.q-feed.ok{border-color:rgba(52,211,153,.5)}.q-feed.no{border-color:rgba(248,113,113,.5)}
+.q-verdict{font-weight:700;margin-bottom:6px}.q-feed.ok .q-verdict{color:var(--success)}.q-feed.no .q-verdict{color:var(--danger)}
+.q-logic{line-height:1.9;color:var(--text-primary);font-size:.95rem}
+.q-next{display:block;width:100%;margin-top:14px;padding:14px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1207;font-weight:700;font-size:1rem;cursor:pointer}
+.q-next.alt{background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border);font-weight:500}
+.q-result{text-align:center;padding:30px 4px}
+.q-big{font-family:'Lora',serif;font-size:3rem;font-weight:700;color:var(--gold)}
+.q-pct{margin:6px 0;font-size:1.05rem}.q-note{color:var(--text-secondary);font-size:.9rem;margin-bottom:10px}
+.q-empty{text-align:center;color:var(--text-secondary);padding:60px 10px}
+.q-tag{margin-top:4px;font-size:.74rem;color:var(--gold)}
+.quiz-chip{border-color:rgba(240,180,41,.4);color:var(--gold-soft)}
+.app-title{white-space:nowrap;font-size:1.1rem}
+.header-actions{gap:6px}
+.mode-bar .mode-chip{font-size:.78rem;padding:9px 4px}
 </style>
 </head>
 <body>
@@ -215,6 +247,7 @@ button{font-family:inherit}
   <div class="progress-container">
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <span id="progressText" dir="ltr">0 / 251</span>
+    <button class="icon-btn" id="mistakesBtn" style="padding:5px 10px;font-size:.76rem;white-space:nowrap">بنك الأخطاء <span class="cnt" id="mistakesCount">0</span></button>
   </div>
   <input class="search-box" id="searchBox" type="search" placeholder="دوّر على حلقة أو كلمة...">
 </header>
@@ -239,9 +272,18 @@ button{font-family:inherit}
     <button class="mode-chip active" data-mode="normal">قراءة</button>
     <button class="mode-chip" data-mode="blind">إخفاء النص</button>
     <button class="mode-chip" data-mode="dictation">إملاء</button>
+    <button class="mode-chip quiz-chip" id="quizChip">اختبار</button>
   </div>
  </div>
   <div class="lines" id="linesContainer"></div>
+</section>
+
+<section class="quiz-view" id="quizView">
+  <div class="player-top">
+    <button class="back-btn" id="quizBackBtn" aria-label="رجوع"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div class="player-heading"><div class="player-title" id="quizTitle"></div><div class="player-sub" id="quizSub"></div></div>
+  </div>
+  <div id="quizBody"></div>
 </section>
 
 <section class="vocab-view" id="vocabView">
@@ -304,6 +346,8 @@ button{font-family:inherit}
 <script>window.AUDIO_BASE = 'audio/';</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="quizdata.js"></script>
+<script src="quiz.js"></script>
 <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }</script>
 </body>
 </html>
