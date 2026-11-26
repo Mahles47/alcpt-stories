@@ -151,14 +151,14 @@ button{font-family:inherit}
 .control-bar.active{display:block}
 .control-inner{max-width:800px;margin:0 auto}
 .status-text{text-align:center;font-size:.78rem;color:var(--text-secondary);margin-bottom:8px;min-height:1.2em}
-.controls{display:flex;justify-content:center;align-items:center;gap:6px}
+.controls{direction:ltr;display:flex;justify-content:center;align-items:center;gap:6px}
 .status-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
 .pills{display:flex;gap:6px}
 .pill-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);border-radius:999px;padding:5px 12px;font-size:.78rem;cursor:pointer;white-space:nowrap}
 .pill-btn.on{border-color:var(--gold);color:var(--gold)}
 .ctrl-btn{width:42px;height:42px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .ctrl-btn:active{transform:scale(.93)}
-.ctrl-btn.skip{font-size:.68rem;font-weight:800;letter-spacing:.5px}
+.ctrl-btn.skip{direction:ltr;unicode-bidi:isolate;font-size:.68rem;font-weight:800;letter-spacing:.5px}
 .ctrl-btn.main{width:58px;height:58px;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1207;font-size:1.4rem;border:none;box-shadow:0 4px 18px var(--gold-glow)}
 .ctrl-btn.on{border-color:var(--gold);color:var(--gold)}
 .toggles{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
@@ -253,9 +253,9 @@ button{font-family:inherit}
       </div>
     </div>
     <div class="controls">
-      <button class="ctrl-btn skip" id="back30Btn" title="رجوع 30 ثانية">30↺</button>
+      <button class="ctrl-btn skip" id="back30Btn" title="رجوع 30 ثانية">«30</button>
       <button class="ctrl-btn main" id="playBtn">▶</button>
-      <button class="ctrl-btn skip" id="fwd30Btn" title="تقديم 30 ثانية">30↻</button>
+      <button class="ctrl-btn skip" id="fwd30Btn" title="تقديم 30 ثانية">30»</button>
     </div>
     <div class="toggles">
       <button class="toggle-chip on" id="autoPlayToggle">تشغيل تلقائي</button>
