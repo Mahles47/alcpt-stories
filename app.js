@@ -275,7 +275,8 @@
       if (isCur) playingEl = el;
     });
     if (playingEl && state.mode !== 'dictation') {
-      const y = playingEl.getBoundingClientRect().top + window.pageYOffset - Math.round(window.innerHeight * 0.24);
+      const hd = document.querySelector('.player-head');
+      const y = playingEl.getBoundingClientRect().top + window.pageYOffset - ((hd ? hd.offsetHeight : 0) + Math.round(window.innerHeight * 0.14));
       window.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
     }
   }
