@@ -2,6 +2,8 @@
    Data: window.EPISODES = [{id,title,tense,voices:{SPK:'M'|'F'},lines:[{s,t,ar}]}] */
 (function () {
   'use strict';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  const PAUSE_SVG = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
   // ---------- State ----------
   const EPISODES = Array.isArray(window.EPISODES) ? window.EPISODES : [];
@@ -111,7 +113,7 @@
     const pos = state.positions[ep.id] || 0;
     continueSlot.innerHTML = `
       <div class="continue-card" id="continueCard">
-        <div class="continue-play">▶</div>
+        <div class="continue-play"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
         <div class="continue-info">
           <div class="continue-label">كمّل من حيث وقفت</div>
           <div class="continue-title">${ep.id}. ${esc(ep.title)}</div>
@@ -148,7 +150,7 @@
             <div class="ep-title">${esc(ep.title)}</div>
             <div class="ep-meta"><span>${TENSE_AR[ep.tense] || ''}</span><span>~${estMinutes(ep)} دقيقة</span><span>${ep.lines.length} سطر</span></div>
           </div>
-          <div class="ep-state">${done ? '✅' : inprog ? '<span class="inprog">بتسمعها</span>' : ''}</div>
+          <div class="ep-state">${done ? '<span class="inprog">تمت</span>' : inprog ? '<span class="inprog">بتسمعها</span>' : ''}</div>
         </div>`;
     });
     listView.innerHTML = html;
@@ -207,7 +209,7 @@
     linesContainer.innerHTML = ep.lines.map((l, i) => {
       const isNarr = l.s === 'NARRATOR';
       const gender = ep.voices[l.s] || 'M';
-      const icon = isNarr ? '🎙️' : gender === 'F' ? '👩' : '👨';
+      const icon = '';
       const name = isNarr ? 'الراوي' : l.s;
       let body;
       if (state.mode === 'dictation') {
@@ -215,9 +217,9 @@
           <div class="dict-box" data-idx="${i}">
             <input type="text" class="dict-input" id="dict-in-${i}" placeholder="اكتب اللي سمعته..." autocomplete="off" autocapitalize="off" spellcheck="false">
             <div class="dict-actions">
-              <button class="dict-btn check" data-act="check" data-idx="${i}">✓ تحقق</button>
-              <button class="dict-btn" data-act="hear" data-idx="${i}">🔊 اسمع</button>
-              <button class="dict-btn" data-act="show" data-idx="${i}">👁 النص</button>
+              <button class="dict-btn check" data-act="check" data-idx="${i}">تحقق</button>
+              <button class="dict-btn" data-act="hear" data-idx="${i}">اسمع</button>
+              <button class="dict-btn" data-act="show" data-idx="${i}">النص</button>
             </div>
             <div class="dict-result" id="dict-res-${i}"></div>
           </div>`;
@@ -408,14 +410,14 @@
     markCurrent(); updateStatus();
     const l = ep.lines[idx];
     state.playing = true; state.paused = false;
-    playBtn.textContent = '⏸';
+    playBtn.innerHTML = PAUSE_SVG;
     const onend = () => {
       if (!state.playing) return;
       if (state.autoPlay && idx < ep.lines.length - 1) {
         playLine(idx + 1);
       } else {
         state.playing = false;
-        playBtn.textContent = '▶';
+        playBtn.innerHTML = PLAY_SVG;
         if (idx >= ep.lines.length - 1) finishEpisode();
       }
     };
@@ -462,7 +464,7 @@
     speechSynthesis.cancel();
     audio.pause();
     state.playing = false; state.paused = false;
-    playBtn.textContent = '▶';
+    playBtn.innerHTML = PLAY_SVG;
   }
 
   function finishEpisode() {
@@ -474,7 +476,7 @@
     state.positions[id] = 0;
     store.set('st_positions', state.positions);
     updateProgress();
-    showToast('خلصت الحلقة! برافو عليك 🎉');
+    showToast('خلصت الحلقة! برافو عليك');
   }
 
   // ---------- Dictation ----------
@@ -485,7 +487,7 @@
     const res = $('dict-res-' + idx);
     const target = normWords(state.currentEp.lines[idx].t);
     const typed = normWords(input);
-    if (!typed.length) { res.innerHTML = '<span class="miss">اكتب اللي سمعته الأول 🙂</span>'; return; }
+    if (!typed.length) { res.innerHTML = '<span class="miss">اكتب اللي سمعته الأول</span>'; return; }
     // simple LCS diff
     const n = target.length, m = typed.length;
     const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
@@ -512,7 +514,7 @@
     state.vocab.unshift({ w: word, ep: ep.id, line: lineIdx, sentence: ep.lines[lineIdx].t });
     store.set('st_vocab', state.vocab);
     updateProgress();
-    showToast(`اتحفظت "${word}" في كلماتي ✅`);
+    showToast(`اتحفظت "${word}" في كلماتي`);
     if (state.wordMode) { renderLines(); }
   }
 
@@ -524,10 +526,10 @@
     vocabList.innerHTML = state.vocab.map((v, i) => `
       <div class="vocab-item">
         <div class="vocab-word-row">
-          <button class="mini-btn" data-act="speak" data-i="${i}">🔊</button>
+          <button class="mini-btn" data-act="speak" data-i="${i}">اسمع</button>
           <span class="vocab-word">${esc(v.w)}</span>
           <button class="mini-btn" data-act="goto" data-i="${i}">الحلقة</button>
-          <button class="mini-btn" data-act="del" data-i="${i}">🗑</button>
+          <button class="mini-btn" data-act="del" data-i="${i}">حذف</button>
         </div>
         <div class="vocab-sentence">${esc(v.sentence)}</div>
         <div class="vocab-ep">حلقة ${v.ep}</div>
@@ -552,10 +554,10 @@
   playBtn.addEventListener('click', () => {
     if (state.playing && !state.paused) {
       if (state.audioMode) audio.pause(); else speechSynthesis.pause();
-      state.paused = true; playBtn.textContent = '▶';
+      state.paused = true; playBtn.innerHTML = PLAY_SVG;
     } else if (state.paused) {
       if (state.audioMode) audio.play().catch(() => {}); else speechSynthesis.resume();
-      state.paused = false; playBtn.textContent = '⏸';
+      state.paused = false; playBtn.innerHTML = PAUSE_SVG;
     } else {
       playLine(state.currentLine);
     }
@@ -583,18 +585,18 @@
     clearTimeout(state.sleepTimer);
     state.sleepTimer = null;
     if (state.sleepMin > 0) {
-      sleepBtn.textContent = `😴 ${state.sleepMin}د`;
+      sleepBtn.textContent = `نوم ${state.sleepMin}د`;
       sleepBtn.classList.add('on');
-      showToast(`هيقفل التشغيل بعد ${state.sleepMin} دقيقة 😴`);
+      showToast(`هيقفل التشغيل بعد ${state.sleepMin} دقيقة`);
       state.sleepTimer = setTimeout(() => {
         stopSpeaking();
         state.sleepMin = 0;
-        sleepBtn.textContent = '😴';
+        sleepBtn.textContent = 'مؤقت النوم';
         sleepBtn.classList.remove('on');
-        showToast('مؤقت النوم قفل التشغيل 😴');
+        showToast('مؤقت النوم قفل التشغيل');
       }, state.sleepMin * 60000);
     } else {
-      sleepBtn.textContent = '😴';
+      sleepBtn.textContent = 'مؤقت النوم';
       sleepBtn.classList.remove('on');
       showToast('مؤقت النوم اتلغى');
     }
