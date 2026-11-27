@@ -168,6 +168,7 @@
     playerView.classList.toggle('active', v === 'player');
     vocabView.classList.toggle('active', v === 'vocab');
     controlBar.classList.toggle('active', v === 'player');
+    const vv = document.getElementById('videoView'); if (vv) vv.classList.toggle('active', v === 'video');
     const qv = document.getElementById('quizView'); if (qv) qv.classList.toggle('active', v === 'quiz');
     window.scrollTo(0, 0);
   }
